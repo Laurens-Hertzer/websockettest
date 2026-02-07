@@ -1,13 +1,18 @@
+const http = require('http');
 const WebSocket = require('ws');
 
-// Create a WebSocket server on port 8080
-const wss = new WebSocket.Server({ port: 8080 });
+const server = http.createServer();
+const wss = new WebSocket.Server({ server });
 
-console.log('WebSocket server is running on ws://localhost:8080');
+wss.on('connection', ws => {
+  ws.send('Welcome!');
+});
 
-// Connection event handler
-wss.on('connection', (ws) => {
-  console.log('New client connected');
+const PORT = process.env.PORT || 8080;
+server.listen(PORT, () => {
+  console.log(`Listening on ${PORT}`);
+
+
   
   // Send a welcome message to the client
   ws.send('Welcome to the WebSocket server!');

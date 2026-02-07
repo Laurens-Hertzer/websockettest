@@ -8,7 +8,11 @@ const rl = readline.createInterface({
 });
 
 // Connect to the WebSocket server
-const ws = new WebSocket('ws://localhost:8080');
+const ws = new WebSocket(
+  location.hostname === 'localhost'
+    ? 'ws://localhost:8080'
+    : `wss://${location.host}`
+);
 
 // Connection opened
 ws.on('open', () => {
