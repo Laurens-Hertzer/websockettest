@@ -27,9 +27,15 @@ wss.on('connection', (ws) => {
   console.log('Client connected');
   ws.send('Welcome to the WebSocket server!');
 
-  ws.on('message', (msg) => {
-    console.log('Received:', msg);
-    ws.send(`Server received: ${msg}`);
+ws.on('message', (msg) => {
+  console.log('Received:', msg);
+
+  // An alle verbundenen Clients senden
+    wss.clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(msg);
+      }
+    });
   });
 });
 
