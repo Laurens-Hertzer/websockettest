@@ -13,6 +13,7 @@ ws.on('open', () => {
   ask();
 });
 
+ws.binaryType = "blob";
 ws.on('message', (msg) => {
   console.log('Server:', msg);
 });

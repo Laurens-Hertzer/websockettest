@@ -24,16 +24,26 @@ const server = http.createServer((req, res) => {
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws) => {
-  console.log('Client connected');
-  ws.send('Welcome to the WebSocket server!');
+  ws.on('message', (raw) => {
+    let data;
 
-ws.on('message', (msg) => {
-  console.log('Received:', msg);
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      return;
+    }
 
-  // An alle verbundenen Clients senden
+    const message = {
+      user: data.user,
+      text: data.text,
+      time: Date.now()
+    };
+
+    const json = JSON.stringify(message);
+
     wss.clients.forEach(client => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(msg);
+        client.send(json);
       }
     });
   });

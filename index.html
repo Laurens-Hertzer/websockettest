@@ -29,52 +29,59 @@
   </div>
 
   <script>
-    const status = document.getElementById('status');
-    const messages = document.getElementById('messages');
-    const messageInput = document.getElementById('messageInput');
+  const status = document.getElementById('status');
+  const messages = document.getElementById('messages');
+  const messageInput = document.getElementById('messageInput');
 
-    const ws = new WebSocket(
-      location.protocol === 'https:'
-        ? `wss://${location.host}`
-        : 'ws://localhost:8080'
-    );
+  const username = prompt("Dein Name:");
 
-    ws.onopen = () => {
-      status.textContent = 'Connected to server';
-      status.style.color = 'green';
-    };
+  const ws = new WebSocket(
+    location.protocol === 'https:'
+      ? `wss://${location.host}`
+      : 'ws://localhost:8080'
+  );
 
-    ws.onmessage = (event) => {
-      const message = document.createElement('div');
-      message.className = 'message';
-      message.textContent = event.data;
-      messages.appendChild(message);
-      messages.scrollTop = messages.scrollHeight;
-    };
+  ws.binaryType = "blob";
 
-    ws.onerror = (error) => {
-      status.textContent = 'Error: ' + error.message;
-      status.style.color = 'red';
-    };
+  ws.onopen = () => {
+    status.textContent = 'Connected to server';
+    status.style.color = 'green';
+  };
 
-    ws.onclose = () => {
-      status.textContent = 'Disconnected from server';
-      status.style.color = 'red';
-    };
+  ws.onmessage = async (event) => {
+    let text = event.data instanceof Blob ? await event.data.text() : event.data;
 
-    function sendMessage() {
-      const message = messageInput.value.trim();
-      if (message) {
-        ws.send(message);
-        messageInput.value = '';
-      }
+    let msg;
+    try {
+      msg = JSON.parse(text);
+    } catch {
+      return;
     }
 
-    messageInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        sendMessage();
-      }
-    });
-  </script>
+    const div = document.createElement('div');
+    div.className = 'message';
+    div.textContent = `[${new Date(msg.time).toLocaleTimeString()}] ${msg.user}: ${msg.text}`;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  };
+
+  function sendMessage() {
+    const text = messageInput.value.trim();
+    if (!text) return;
+
+    const payload = {
+      user: username,
+      text
+    };
+
+    ws.send(JSON.stringify(payload));
+    messageInput.value = '';
+  }
+
+  messageInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+</script>
+
 </body>
 </html>
