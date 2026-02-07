@@ -1,4 +1,4 @@
-const WebSocket = require('ws');
+/*const WebSocket = require('ws');
 const readline = require('readline');
 
 const rl = readline.createInterface({
@@ -33,4 +33,4 @@ function ask() {
     ws.send(msg);
     ask();
   });
-}
+}*/
